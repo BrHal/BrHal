@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, jsonify
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
@@ -41,40 +41,10 @@ def generate_slides(hosts):
         nav_links += f"<a href='#' onclick='Reveal.slide({index + 1})'>{host['Name']}</a>"
     return slides, nav_links
 
-slides_content, nav_content = generate_slides(hosts_data)
-
-TEMPLATE = f"""<!DOCTYPE html>
-<html lang=\"fr\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>Présentation des Hosts</title>
-    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css\">
-    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css\">
-    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/league.min.css\">
-    <style>
-        body { font-family: 'Arial', sans-serif; background: url('https://images.pexels.com/photos/442152/pexels-photo-442152.jpeg') no-repeat center center fixed; background-size: cover; }
-        #host-nav { position: fixed; top: 10px; left: 10px; background: rgba(0, 50, 100, 0.8); color: white; padding: 15px; border-radius: 10px; z-index: 1000; box-shadow: 0 4px 8px rgba(0, 150, 255, 0.5); }
-        #host-nav a { display: block; color: #00FFFF; text-decoration: none; margin: 10px 0; font-weight: bold; transition: color 0.3s ease; }
-        #host-nav a:hover { color: #FFD700; }
-        .slides section { text-align: center; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 150, 255, 0.5); background: rgba(0, 50, 100, 0.7); color: white; }
-    </style>
-</head>
-<body>
-    <div id=\"host-nav\">{nav_content}</div>
-    <div class=\"reveal\">
-        <div class=\"slides\">{slides_content}</div>
-    </div>
-    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js\"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => { Reveal.initialize(); });
-    </script>
-</body>
-</html>"""
-
 @app.route('/')
 def index():
-    return TEMPLATE
+    slides_content, nav_content = generate_slides(hosts_data)
+    return render_template("reveal_template.html", slides_content=slides_content, nav_content=nav_content)
 
 @app.route('/api/hosts')
 def get_hosts():
